@@ -1,10 +1,17 @@
 
 import { useParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 
 const LabPage = () => {
   const { slug } = useParams();
+  const [selectedEquipment, setSelectedEquipment] = useState<any>(null);
   
   // Mock data - replace with your actual lab data
   const labData = {
@@ -60,34 +67,40 @@ const LabPage = () => {
         <p className="text-gray-600 mb-8">{lab.description}</p>
 
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Equipment</h2>
-        <Tabs defaultValue={lab.equipment[0].name} className="w-full">
-          <TabsList className="flex flex-wrap gap-2 mb-4">
-            {lab.equipment.map((item) => (
-              <TabsTrigger 
-                key={item.name} 
-                value={item.name}
-                className="px-3 py-1.5 text-sm bg-white/80 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                {item.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {lab.equipment.map((item) => (
-            <TabsContent key={item.name} value={item.name} className="mt-4">
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-gray-100">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">{item.name}</h3>
-                <p className="text-gray-600 mb-4">{item.description}</p>
+            <motion.div
+              key={item.name}
+              whileHover={{ scale: 1.02 }}
+              className="bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-md border border-gray-100 cursor-pointer"
+              onClick={() => setSelectedEquipment(item)}
+            >
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">{item.name}</h3>
+              <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <Dialog open={selectedEquipment !== null} onOpenChange={() => setSelectedEquipment(null)}>
+          {selectedEquipment && (
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>{selectedEquipment.name}</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4">
+                <p className="text-gray-600 mb-4">{selectedEquipment.description}</p>
                 <div className="space-y-2">
-                  {item.specifications.map((spec, index) => (
+                  <h4 className="font-semibold text-gray-800">Specifications:</h4>
+                  {selectedEquipment.specifications.map((spec: string, index: number) => (
                     <div key={index} className="text-sm text-gray-500">
                       • {spec}
                     </div>
                   ))}
                 </div>
               </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+            </DialogContent>
+          )}
+        </Dialog>
       </div>
     </motion.div>
   );
